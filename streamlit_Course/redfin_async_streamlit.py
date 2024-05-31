@@ -9,7 +9,7 @@ from openpyxl.styles import Font
 import asyncio
 import time
 from pandas import DataFrame
-
+import os
 def timing_decorator(func):
     async def wrapper_function(*args,**kwargs):
         start = time.perf_counter()
@@ -136,7 +136,7 @@ def data_to_dataframe(results: list[tuple[tuple[str,str],tuple[str, str, str, st
     return df
 
 def read_counties_from_file() -> list[str]:
-    df = pd.read_excel("CountyDemandMaster.xlsx", header=None, sheet_name="May 2024")
+    df = pd.read_excel(os.path.join(os.getcwd(),"CountyDemandMaster.xlsx"), header=None, sheet_name="May 2024")
     return df.iloc[1:, 0].tolist()
 
 
