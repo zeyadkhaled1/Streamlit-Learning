@@ -237,7 +237,6 @@ async def main()->DataFrame:
     progress_bar(reset=True)
     data=await scrape_data(search_links)
     data=data_to_dataframe(data)
-    print(data)
     return data
     
 

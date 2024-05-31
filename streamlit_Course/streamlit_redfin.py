@@ -19,17 +19,40 @@ def remove_character(df, column_name,characters_to_remove):
     return df
 
 
+    
+def update_authenticated_wrapper(credits_correct:bool):
+    def update_authenticated():
+        if credits_correct:
+            st.session_state["authenticated"]=True
+    return update_authenticated
 
+def check_authentication():
+    if st.session_state.get("authenticated",False):
+        return True
+    user_name = st.text_input("Your email")
+    password = st.text_input("Enter Your Password", type="password")
+    credits_correct=True if user_name=="Sean Nearing" and password=="Sean123" else False
+    submit=st.button(label="Submit", on_click=update_authenticated_wrapper(credits_correct))
+    if submit:
+        if credits_correct:
+            st.session_state["authenticated"]=True
+            return True
+        else:
+            st.error("Invalid Credentials")
+            return False
+        
 # Main function to control the scraping process and display the dashboard
 async def main():
     # Button to initiate scraping
+    sign_in_allowed=check_authentication()
+    if not sign_in_allowed:
+        return
     ui_button=ui.button(text="Scrape Data", key="trigger_btn")
     if ui_button:
-        st.cache_data.clear()
+        scrape_data_sync.clear()
     with st.spinner('Scraping data... This will take up to 3 minutes.'):
         # Scrape data
         data = scrape_data_sync()
-        print(data)
         st.success('Data scraping complete!')
 
         # Display the rest of the dashboard
@@ -72,7 +95,7 @@ def show_dashboard(df):
     filtered_df = df[df['County'].str.contains(search_term, case=False, na=False)]
     st.dataframe(filtered_df,use_container_width=True)
 
- 
+    
     # Footer
     st.markdown("""
         <style>
