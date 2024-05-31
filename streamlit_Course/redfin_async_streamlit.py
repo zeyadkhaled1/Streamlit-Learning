@@ -135,8 +135,8 @@ def data_to_dataframe(results: list[tuple[tuple[str,str],tuple[str, str, str, st
     df = pd.DataFrame(list_of_data_to_write, columns=columns)
     return df
 
-def read_counties_from_file() -> list[str]:
-    df = pd.read_excel(os.path.join(os.getcwd(),"CountyDemandMaster.xlsx"), header=None, sheet_name="May 2024")
+def read_counties_from_file(uploaded_file) -> list[str]:
+    df = pd.read_excel(uploaded_file, header=None, sheet_name="May 2024")
     return df.iloc[1:, 0].tolist()
 
 
@@ -230,8 +230,8 @@ async def scrape_data(search_links: list[str]):
     return all_data
 
 @timing_decorator
-async def main()->DataFrame:
-    list_of_counties: list[str] = read_counties_from_file()
+async def main(uploaded_file)->DataFrame:
+    list_of_counties: list[str] = read_counties_from_file(uploaded_file)
     list_of_tuples: list[tuple[str, str]] = split_county_to_tuple(list_of_counties)
     search_links=await get_search_links_associated_with_search_tuple(list_of_tuples)
     progress_bar(reset=True)

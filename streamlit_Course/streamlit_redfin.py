@@ -10,9 +10,9 @@ nest_asyncio.apply()
     
 
 @st.cache_data(show_spinner=False)
-def scrape_data_sync():
+def scrape_data_sync(uploaded_file):
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(redfin.main())
+    return loop.run_until_complete(redfin.main(uploaded_file))
 
 def remove_character(df, column_name,characters_to_remove):
     df[column_name] = df[column_name].str.replace(characters_to_remove, '').astype(float)
@@ -40,19 +40,30 @@ def check_authentication():
         else:
             st.error("Invalid Credentials")
             return False
-        
+
+def file_upload():
+    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
+    return uploaded_file
+
+
+
 # Main function to control the scraping process and display the dashboard
 async def main():
     # Button to initiate scraping
     sign_in_allowed=check_authentication()
     if not sign_in_allowed:
         return
-    ui_button=ui.button(text="Scrape Data", key="trigger_btn")
+    col_1=st.columns(1)
+    with col_1[0]:
+        uploaded_file=file_upload()
+        ui_button=ui.button(text="Scrape Data", key="trigger_btn")
+    if not uploaded_file:
+        return
     if ui_button:
         scrape_data_sync.clear()
     with st.spinner('Scraping data... This will take up to 3 minutes.'):
         # Scrape data
-        data = scrape_data_sync()
+        data = scrape_data_sync(uploaded_file)
         st.success('Data scraping complete!')
 
         # Display the rest of the dashboard
